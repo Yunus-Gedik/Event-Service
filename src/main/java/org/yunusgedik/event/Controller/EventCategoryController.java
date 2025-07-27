@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.*;
 import org.yunusgedik.event.Model.EventCategory.EventCategory;
 import org.yunusgedik.event.Model.EventCategory.EventCategoryDTO;
 import org.yunusgedik.event.Service.EventCategoryService;
-import org.yunusgedik.event.Service.EventService;
 
 import java.util.List;
 
@@ -13,7 +12,7 @@ import java.util.List;
 public class EventCategoryController {
     private final EventCategoryService eventCategoryService;
 
-    public EventCategoryController(EventService eventCategoryService) {
+    public EventCategoryController(EventCategoryService eventCategoryService) {
         this.eventCategoryService = eventCategoryService;
     }
 
@@ -22,24 +21,29 @@ public class EventCategoryController {
         return this.eventCategoryService.getAll();
     }
 
-    @GetMapping("/id")
-    public EventCategory getById(@RequestParam(name = "id", required = true) Long id) {
+    @GetMapping("")
+    public EventCategory getById(@RequestParam(name = "id") Long id) {
         return eventCategoryService.get(id);
     }
 
     @GetMapping("/{id}")
-    public EventCategory getByPathVariableId(@PathVariable(name = "id", required = true) Long id) {
+    public EventCategory getByPathVariableId(@PathVariable(name = "id") Long id) {
         return eventCategoryService.get(id);
     }
 
     @PostMapping("/new")
-    public EventCategory create(@RequestBody(required = true) EventCategoryDTO categoryDTO) {
-        return this.eventCategoryService.create();
+    public EventCategory create(@RequestBody EventCategoryDTO categoryDTO) {
+        return this.eventCategoryService.create(categoryDTO);
     }
 
-    @PostMapping("/update")
-    public EventCategory update(@RequestBody(required = true) EventCategoryDTO categoryDTO) {
+    @PatchMapping("/update")
+    public EventCategory update(@RequestBody EventCategoryDTO categoryDTO) {
         return this.eventCategoryService.update(categoryDTO);
+    }
+
+    @DeleteMapping("/{id}")
+    public EventCategory delete(@PathVariable(value = "id") Long id){
+        return this.eventCategoryService.delete(id);
     }
 
 }
