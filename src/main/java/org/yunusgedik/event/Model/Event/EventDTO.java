@@ -19,5 +19,5 @@ public class EventDTO {
     private LocalDateTime lastUpdatedAt;
     private int capacity;
     private double price;
-    private boolean isActive;
+    private boolean active;
 }
