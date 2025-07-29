@@ -1,6 +1,8 @@
 package org.yunusgedik.event.Service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import org.yunusgedik.event.Model.EventCategory.EventCategory;
 import org.yunusgedik.event.Model.EventCategory.EventCategoryDTO;
 import org.yunusgedik.event.Repository.EventCategoryRepository;
@@ -27,12 +29,11 @@ public class EventCategoryService {
     public EventCategory create(EventCategoryDTO categoryDTO) {
         EventCategory eventCategory = new EventCategory();
         eventCategory.setName(categoryDTO.getName());
-        if (categoryDTO.getId() != null &&
-            !repository.existsById(categoryDTO.getId()) &&
-            categoryDTO.getId() > 0) {
+        if (categoryDTO.getId() == null ||
+            (!repository.existsById(categoryDTO.getId()) && categoryDTO.getId() > 0)) {
             return this.repository.save(eventCategory);
         }
-        return null;
+        throw new ResponseStatusException(HttpStatus.IM_USED, "ID is in use.");
     }
 
     public EventCategory update(EventCategoryDTO categoryDTO) {
