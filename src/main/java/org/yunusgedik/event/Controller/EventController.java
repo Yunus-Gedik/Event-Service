@@ -43,6 +43,6 @@ public class EventController {
 
     @DeleteMapping("")
     public Event delete(@RequestParam(name = "id", required = true) Long id){
-        this.eventService.delete(id);
+        return this.eventService.delete(id);
     }
 }
