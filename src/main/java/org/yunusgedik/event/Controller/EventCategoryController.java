@@ -1,5 +1,7 @@
 package org.yunusgedik.event.Controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.yunusgedik.event.Model.EventCategory.EventCategory;
 import org.yunusgedik.event.Model.EventCategory.EventCategoryDTO;
@@ -42,8 +44,14 @@ public class EventCategoryController {
     }
 
     @DeleteMapping("/{id}")
-    public EventCategory delete(@PathVariable(value = "id") Long id){
-        return this.eventCategoryService.delete(id);
+    public ResponseEntity<EventCategory> delete(@PathVariable("id") Long id) {
+        EventCategory deleted = this.eventCategoryService.delete(id);
+
+        if (deleted == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        return ResponseEntity.ok(deleted);
     }
 
 }
