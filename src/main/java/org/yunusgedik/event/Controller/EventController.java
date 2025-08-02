@@ -36,9 +36,9 @@ public class EventController {
         return this.eventService.create(eventDTO);
     }
 
-    @PatchMapping("/update")
-    public Event update(@RequestBody EventDTO eventDTO){
-        return this.eventService.update(eventDTO);
+    @PatchMapping("/update/{id}")
+    public Event update(@RequestBody EventDTO eventDTO, @PathVariable Long id){
+        return this.eventService.update(id, eventDTO);
     }
 
     @DeleteMapping("")

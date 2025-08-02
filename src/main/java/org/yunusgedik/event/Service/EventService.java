@@ -35,15 +35,15 @@ public class EventService {
         return this.eventRepository.save(event);
     }
 
-    public Event update(EventDTO eventDTO) {
-        Event event = this.eventRepository.findById(eventDTO.getId()).orElseThrow(() ->
+    public Event update(Long id, EventDTO eventDTO) {
+        Event event = this.eventRepository.findById(id).orElseThrow(() ->
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found")
         );
         modelMapper.map(eventDTO, event);
         return this.eventRepository.save(event);
     }
 
-    public Event delete(Long id) {
+    public Event    delete(Long id) {
         Event event = this.eventRepository.findById(id).orElseThrow(() ->
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found")
         );
