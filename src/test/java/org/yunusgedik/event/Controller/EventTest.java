@@ -85,9 +85,9 @@ public class EventTest {
         Event event = createSampleEvent(null, null);
         EventDTO eventDTO = createSampleEventDTO();
 
-        when(eventService.update(any(EventDTO.class))).thenReturn(event);
+        when(eventService.update(anyLong(), any(EventDTO.class))).thenReturn(event);
 
-        mockMvc.perform(patch("/event/update")
+        mockMvc.perform(patch("/event/update/1L")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(eventDTO)))
             .andExpect(status().isOk())
