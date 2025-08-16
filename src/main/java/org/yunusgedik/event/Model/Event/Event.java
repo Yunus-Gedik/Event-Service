@@ -1,5 +1,6 @@
 package org.yunusgedik.event.Model.Event;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public class Event {
 
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false, name = "categoryId")
+    @JsonManagedReference
     private EventCategory category;
 
     private String title;

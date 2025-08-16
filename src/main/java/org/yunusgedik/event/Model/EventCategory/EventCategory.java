@@ -1,5 +1,6 @@
 package org.yunusgedik.event.Model.EventCategory;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -25,5 +26,6 @@ public class EventCategory {
     private String name;
 
     @OneToMany(mappedBy = "category")
+    @JsonBackReference
     private Set<Event> events;
 }
