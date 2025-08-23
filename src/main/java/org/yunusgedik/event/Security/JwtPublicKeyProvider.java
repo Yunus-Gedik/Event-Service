@@ -1,5 +1,6 @@
 package org.yunusgedik.event.Security;
 
+import lombok.Getter;
 import org.springframework.stereotype.Component;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -8,6 +9,7 @@ import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
+@Getter
 @Component
 public class JwtPublicKeyProvider {
     private final PublicKey publicKey;
@@ -21,9 +23,5 @@ public class JwtPublicKeyProvider {
         X509EncodedKeySpec spec = new X509EncodedKeySpec(decoded);
         KeyFactory kf = KeyFactory.getInstance("RSA");
         this.publicKey = kf.generatePublic(spec);
-    }
-
-    public PublicKey getPublicKey() {
-        return publicKey;
     }
 }
