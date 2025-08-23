@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.yunusgedik.event.Controller.EventCategory.EventCategoryController;
 import org.yunusgedik.event.Model.EventCategory.EventCategory;
 import org.yunusgedik.event.Model.EventCategory.EventCategoryDTO;
 import org.yunusgedik.event.Service.EventCategoryService;

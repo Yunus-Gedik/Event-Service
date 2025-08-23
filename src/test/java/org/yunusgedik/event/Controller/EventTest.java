@@ -1,7 +1,6 @@
 package org.yunusgedik.event.Controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jdk.jfr.ContentType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.yunusgedik.event.Controller.Event.EventController;
 import org.yunusgedik.event.Model.Event.Event;
 import org.yunusgedik.event.Model.Event.EventDTO;
 import org.yunusgedik.event.Model.EventCategory.EventCategory;
