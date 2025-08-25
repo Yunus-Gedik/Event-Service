@@ -3,7 +3,6 @@ package org.yunusgedik.event.Controller.Event;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -34,7 +33,7 @@ public class EventTest {
     MockMvc mockMvc;
 
     @Test
-    @DisplayName("GET /event/all success")
+    @DisplayName("GET /event/all")
     void shouldGetAllEvents() throws Exception {
         Event event = createSampleEvent(null, null);
 
@@ -54,6 +53,20 @@ public class EventTest {
         when(eventService.get(100L)).thenReturn(event);
 
         mockMvc.perform(get("/event/100"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(100))
+            .andExpect(jsonPath("$.title").value("TestName"));
+    }
+
+    @Test
+    @DisplayName("GET /event request param id success")
+    void shouldGetEventByIdRequestParam() throws Exception {
+        Event event = createSampleEvent(100L, "TestName");
+
+        when(eventService.get(100L)).thenReturn(event);
+
+        mockMvc.perform(get("/event")
+                .param("id", "100"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(100))
             .andExpect(jsonPath("$.title").value("TestName"));
