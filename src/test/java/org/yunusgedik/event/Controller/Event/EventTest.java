@@ -5,8 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.server.ResponseStatusException;
 import org.yunusgedik.event.Model.Event.Event;
 import org.yunusgedik.event.Security.JwtAuthenticationFilter;
 import org.yunusgedik.event.Security.JwtPublicKeyProvider;
@@ -16,6 +18,7 @@ import org.yunusgedik.event.Service.EventService;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -47,7 +50,7 @@ public class EventTest {
 
     @Test
     @DisplayName("GET /event/id success")
-    void shouldGetEventById() throws Exception {
+    void shouldGetEventByIdSuccess() throws Exception {
         Event event = createSampleEvent(100L, "TestName");
 
         when(eventService.get(100L)).thenReturn(event);
@@ -56,6 +59,17 @@ public class EventTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(100))
             .andExpect(jsonPath("$.title").value("TestName"));
+    }
+
+    @Test
+    @DisplayName("GET /event/id fail")
+    void shouldGetEventByIdFail() throws Exception {
+
+        when(eventService.get(anyLong()))
+            .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+
+        mockMvc.perform(get("/event/100"))
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -70,5 +84,17 @@ public class EventTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(100))
             .andExpect(jsonPath("$.title").value("TestName"));
+    }
+
+    @Test
+    @DisplayName("GET /event request param id success")
+    void shouldGetEventByIdRequestParamFail() throws Exception {
+
+        when(eventService.get(anyLong()))
+            .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+
+        mockMvc.perform(get("/event")
+                .param("id", "100"))
+            .andExpect(status().isNotFound());
     }
 }
