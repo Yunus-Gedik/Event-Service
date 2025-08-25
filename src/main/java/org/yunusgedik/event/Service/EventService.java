@@ -22,7 +22,8 @@ public class EventService {
     }
 
     public Event get(Long id){
-        return this.eventRepository.findById(id).orElse(null);
+        return this.eventRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND , "Event not found"));
     }
 
     public List<Event> getAll() {
