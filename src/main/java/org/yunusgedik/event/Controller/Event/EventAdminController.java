@@ -7,7 +7,7 @@ import org.yunusgedik.event.Model.Event.EventDTO;
 import org.yunusgedik.event.Service.EventService;
 
 @RestController
-@RequestMapping("/event/admin")
+@RequestMapping("/admin/event")
 public class EventAdminController {
     private final EventService eventService;
 

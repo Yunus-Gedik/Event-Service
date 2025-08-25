@@ -9,7 +9,7 @@ import org.yunusgedik.event.Model.EventCategory.EventCategoryDTO;
 import org.yunusgedik.event.Service.EventCategoryService;
 
 @RestController
-@RequestMapping("/event-category/admin")
+@RequestMapping("/admin/event-category")
 public class EventCategoryAdminController {
     private final EventCategoryService eventCategoryService;
 
