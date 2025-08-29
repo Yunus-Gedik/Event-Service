@@ -21,9 +21,9 @@ public class EventService {
         this.modelMapper = modelMapper;
     }
 
-    public Event get(Long id){
+    public Event get(Long id) {
         return this.eventRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND , "Event not found"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
     }
 
     public List<Event> getAll() {
@@ -31,8 +31,13 @@ public class EventService {
     }
 
     public Event create(EventDTO eventDTO) {
+        if (eventDTO.getId() != null && this.eventRepository.existsById(eventDTO.getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Event with ID " + eventDTO.getId() + " already exists.");
+        }
+
         Event event = new Event();
         modelMapper.map(eventDTO, event);
+        event.setId(null);
         return this.eventRepository.save(event);
     }
 
@@ -41,10 +46,11 @@ public class EventService {
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found")
         );
         modelMapper.map(eventDTO, event);
+        event.setId(id);
         return this.eventRepository.save(event);
     }
 
-    public Event    delete(Long id) {
+    public Event delete(Long id) {
         Event event = this.eventRepository.findById(id).orElseThrow(() ->
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found")
         );

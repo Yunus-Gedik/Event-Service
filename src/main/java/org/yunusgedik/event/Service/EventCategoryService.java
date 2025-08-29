@@ -19,7 +19,8 @@ public class EventCategoryService {
     }
 
     public EventCategory get(Long id) {
-        return this.repository.findById(id).orElse(null);
+        return this.repository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     public List<EventCategory> getAll() {
@@ -27,13 +28,13 @@ public class EventCategoryService {
     }
 
     public EventCategory create(EventCategoryDTO categoryDTO) {
+        if (categoryDTO.getId() != null && this.repository.existsById(categoryDTO.getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Category with ID " + categoryDTO.getId() + " already exists.");
+        }
+
         EventCategory eventCategory = new EventCategory();
         eventCategory.setName(categoryDTO.getName());
-        if (categoryDTO.getId() == null ||
-            (!repository.existsById(categoryDTO.getId()) && categoryDTO.getId() > 0)) {
-            return this.repository.save(eventCategory);
-        }
-        throw new ResponseStatusException(HttpStatus.IM_USED, "ID is in use.");
+        return this.repository.save(eventCategory);
     }
 
     public EventCategory update(EventCategoryDTO categoryDTO) {
@@ -44,10 +45,7 @@ public class EventCategoryService {
 
     public EventCategory delete(Long id) {
         EventCategory eventCategory = this.get(id);
-        if (eventCategory != null) {
-            this.repository.delete(eventCategory);
-            return eventCategory;
-        }
-        return null;
+        this.repository.delete(eventCategory);
+        return eventCategory;
     }
 }
