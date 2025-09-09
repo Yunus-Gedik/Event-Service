@@ -30,14 +30,11 @@ public class MockEventDataCreater {
 
     public static EventDTO createSampleEventDTO() {
         EventDTO dto = new EventDTO();
-        dto.setId(100L);
         dto.setCategoryId(1L);
         dto.setTitle("Jazz Night");
         dto.setDescription("An evening of smooth jazz performances.");
         dto.setLocation("Downtown Concert Hall");
         dto.setEventDate(LocalDateTime.of(2025, 8, 15, 20, 0));
-        dto.setCreatedAt(LocalDateTime.now());
-        dto.setLastUpdatedAt(LocalDateTime.now());
         dto.setCapacity(150);
         dto.setPrice(49.99);
         dto.setActive(true);

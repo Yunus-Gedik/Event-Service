@@ -20,26 +20,22 @@ public class EventCategoryService {
 
     public EventCategory get(Long id) {
         return this.repository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "EventCategory not found"));
     }
 
     public List<EventCategory> getAll() {
         return this.repository.findAll();
     }
 
-    public EventCategory create(EventCategoryDTO categoryDTO) {
-        if (categoryDTO.getId() != null && this.repository.existsById(categoryDTO.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Category with ID " + categoryDTO.getId() + " already exists.");
-        }
-
+    public EventCategory create(EventCategoryDTO categoryCreateDTO) {
         EventCategory eventCategory = new EventCategory();
-        eventCategory.setName(categoryDTO.getName());
+        eventCategory.setName(categoryCreateDTO.getName());
         return this.repository.save(eventCategory);
     }
 
-    public EventCategory update(EventCategoryDTO categoryDTO) {
-        EventCategory eventCategory = this.get(categoryDTO.getId());
-        eventCategory.setName(categoryDTO.getName());
+    public EventCategory update(Long id, EventCategoryDTO categoryUpdateDTO) {
+        EventCategory eventCategory = this.get(id);
+        eventCategory.setName(categoryUpdateDTO.getName());
         return this.repository.save(eventCategory);
     }
 
