@@ -1,7 +1,6 @@
 package org.yunusgedik.event.Security;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

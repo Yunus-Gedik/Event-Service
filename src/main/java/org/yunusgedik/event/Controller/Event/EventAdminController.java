@@ -1,6 +1,5 @@
 package org.yunusgedik.event.Controller.Event;
 
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
