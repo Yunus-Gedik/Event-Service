@@ -6,11 +6,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.web.server.ResponseStatusException;
 import org.yunusgedik.event.Model.EventCategory.EventCategory;
 import org.yunusgedik.event.Model.EventCategory.EventCategoryDTO;
 import org.yunusgedik.event.Security.JwtAuthenticationFilter;
@@ -20,8 +21,8 @@ import org.yunusgedik.event.Security.SecurityConfig;
 import org.yunusgedik.event.Service.EventCategoryService;
 import java.util.HashSet;
 import java.util.Set;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -44,15 +45,15 @@ public class EventCategoryAdminTest {
     @WithMockUser(username = "1", roles = {"ADMIN"})
     @DisplayName("POST /event-category/admin/new - success")
     void shouldCreateCategory() throws Exception {
-        EventCategoryDTO input = new EventCategoryDTO(null, "Business");
+        EventCategoryDTO input = new EventCategoryDTO("Business");
         EventCategory saved = new EventCategory(3L, "Business", new HashSet<>());
 
         when(categoryService.create(any(EventCategoryDTO.class))).thenReturn(saved);
 
-        mockMvc.perform(post("/event-category/admin/new")
+        mockMvc.perform(post("/admin/event-category/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(input)))
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andExpect(jsonPath("$.id").value(3))
             .andExpect(jsonPath("$.name").value("Business"));
     }
@@ -61,12 +62,12 @@ public class EventCategoryAdminTest {
     @WithMockUser(username = "1", roles = {"ADMIN"})
     @DisplayName("PATCH /event-category/admin/update success")
     void shouldUpdateCategory() throws Exception {
-        EventCategoryDTO input = new EventCategoryDTO(null, "BeforeUpdate");
+        EventCategoryDTO input = new EventCategoryDTO("BeforeUpdate");
         EventCategory updated = new EventCategory(3L, "Business", Set.of());
 
-        when(categoryService.update(any(EventCategoryDTO.class))).thenReturn(updated);
+        when(categoryService.update(anyLong(), any(EventCategoryDTO.class))).thenReturn(updated);
 
-        mockMvc.perform(patch("/event-category/admin/update")
+        mockMvc.perform(patch("/admin/event-category/update/3")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(input)))
             .andExpect(status().isOk())
@@ -81,7 +82,7 @@ public class EventCategoryAdminTest {
 
         when(categoryService.delete(1L)).thenReturn(saved);
 
-        mockMvc.perform(delete("/event-category/admin/1"))
+        mockMvc.perform(delete("/admin/event-category/1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(1L))
             .andExpect(jsonPath("$.name").value("Tech"));
@@ -91,14 +92,14 @@ public class EventCategoryAdminTest {
     @WithMockUser(username = "1", roles = {"ADMIN"})
     @DisplayName("DELETE /event-category/admin/1 failure")
     void shouldDeleteCategoryFailure() throws Exception {
-        when(categoryService.delete(1L)).thenReturn(null);
+        when(categoryService.delete(1L)).thenThrow(
+            new ResponseStatusException(HttpStatus.NOT_FOUND, "EventCategory not found")
+        );
 
-        mockMvc.perform(delete("/event-category/admin/1"))
+        mockMvc.perform(delete("/admin/event-category/1"))
             .andExpect(status().isNotFound())
-            .andExpect(bodyIsNull());
-    }
-
-    private ResultMatcher bodyIsNull() {
-        return result -> assertThat(result.getResponse().getContentAsString()).isEmpty();
+            .andExpect(jsonPath("$.status").value("error"))
+            .andExpect(jsonPath("$.message").value("EventCategory not found"))
+            .andExpect(jsonPath("$.timestamp").exists());
     }
 }
