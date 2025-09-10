@@ -43,31 +43,31 @@ public class EventAdminTest {
 
     @Test
     @WithMockUser(username = "1", roles = {"ADMIN"})
-    @DisplayName("POST /event/admin/new success")
+    @DisplayName("POST /admin/event/new success")
     void shouldCreateNewEvent() throws Exception {
         Event event = createSampleEvent(null, null);
         EventDTO eventDTO = createSampleEventDTO();
 
         when(eventService.create(any(EventDTO.class))).thenReturn(event);
 
-        mockMvc.perform(post("/event/admin/new")
+        mockMvc.perform(post("/admin/event/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(eventDTO)))
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andExpect(jsonPath("$.id").value(100L))
             .andExpect(jsonPath("$.title").value("Jazz Night"));
     }
 
     @Test
     @WithMockUser(username = "1", roles = {"ADMIN"})
-    @DisplayName("PATCH /event/admin/update")
+    @DisplayName("PATCH /admin/event/update")
     void shouldUpdateEvent() throws Exception {
         Event event = createSampleEvent(null, null);
         EventDTO eventDTO = createSampleEventDTO();
 
         when(eventService.update(anyLong(), any(EventDTO.class))).thenReturn(event);
 
-        mockMvc.perform(patch("/event/admin/update/1")
+        mockMvc.perform(patch("/admin/event/update/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(eventDTO)))
             .andExpect(status().isOk())
@@ -78,13 +78,13 @@ public class EventAdminTest {
 
     @Test
     @WithMockUser(username = "1", roles = {"ADMIN"})
-    @DisplayName("DELETE /event/admin")
+    @DisplayName("DELETE /admin/event")
     void shouldDeleteEvent() throws Exception {
         Event event = createSampleEvent(null, null);
 
         when(eventService.delete(100L)).thenReturn(event);
 
-        mockMvc.perform(delete("/event/admin")
+        mockMvc.perform(delete("/admin/event")
                 .param("id", String.valueOf(100L)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(100L))
