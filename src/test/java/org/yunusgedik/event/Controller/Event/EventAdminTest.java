@@ -24,8 +24,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.yunusgedik.event.Controller.Event.MockEventDataCreater.createSampleEvent;
-import static org.yunusgedik.event.Controller.Event.MockEventDataCreater.createSampleEventDTO;
+import static org.yunusgedik.event.Helper.MockDataCreator.createSampleEvent;
+import static org.yunusgedik.event.Helper.MockDataCreator.createSampleEventDTO;
 
 
 @WebMvcTest(controllers = EventAdminController.class)

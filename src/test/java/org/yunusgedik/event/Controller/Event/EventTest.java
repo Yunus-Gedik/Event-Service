@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.yunusgedik.event.Controller.Event.MockEventDataCreater.createSampleEvent;
+import static org.yunusgedik.event.Helper.MockDataCreator.createSampleEvent;
 
 @WebMvcTest(EventController.class)
 @Import({JwtAuthenticationFilter.class, JwtValidationService.class, JwtPublicKeyProvider.class, SecurityConfig.class})
