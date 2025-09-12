@@ -3,17 +3,13 @@ package org.yunusgedik.event.Controller.Event;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 import org.yunusgedik.event.Model.Event.Event;
-import org.yunusgedik.event.Security.JwtAuthenticationFilter;
-import org.yunusgedik.event.Security.JwtPublicKeyProvider;
-import org.yunusgedik.event.Security.JwtValidationService;
-import org.yunusgedik.event.Security.SecurityConfig;
 import org.yunusgedik.event.Service.EventService;
 
 import java.util.List;
@@ -26,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.yunusgedik.event.Helper.MockDataCreator.createSampleEvent;
 
 @WebMvcTest(EventController.class)
-@Import({JwtAuthenticationFilter.class, JwtValidationService.class, JwtPublicKeyProvider.class, SecurityConfig.class})
+@AutoConfigureMockMvc(addFilters = false)
 public class EventTest {
 
     @MockitoBean
