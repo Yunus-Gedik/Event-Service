@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -26,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.yunusgedik.event.Helper.MockDataCreator.createSampleEvent;
 import static org.yunusgedik.event.Helper.MockDataCreator.createSampleEventDTO;
-
+import org.springframework.web.server.ResponseStatusException;
 
 @WebMvcTest(controllers = EventAdminController.class)
 @Import({JwtAuthenticationFilter.class, JwtValidationService.class, JwtPublicKeyProvider.class, SecurityConfig.class})
@@ -60,7 +61,7 @@ public class EventAdminTest {
 
     @Test
     @WithMockUser(username = "1", roles = {"ADMIN"})
-    @DisplayName("PATCH /admin/event/update")
+    @DisplayName("PATCH /admin/event/update success")
     void shouldUpdateEvent() throws Exception {
         Event event = createSampleEvent(null, null);
         EventDTO eventDTO = createSampleEventDTO();
@@ -78,7 +79,7 @@ public class EventAdminTest {
 
     @Test
     @WithMockUser(username = "1", roles = {"ADMIN"})
-    @DisplayName("DELETE /admin/event")
+    @DisplayName("DELETE /admin/event success")
     void shouldDeleteEvent() throws Exception {
         Event event = createSampleEvent(null, null);
 
@@ -91,5 +92,75 @@ public class EventAdminTest {
             .andExpect(jsonPath("$.title").value("Jazz Night"));
 
         verify(eventService).delete(anyLong());
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = {"USER"})
+    @DisplayName("POST /admin/event/new forbidden for non-admin")
+    void shouldNotAllowCreateForNonAdmin() throws Exception {
+        EventDTO eventDTO = createSampleEventDTO();
+
+        mockMvc.perform(post("/admin/event/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(eventDTO)))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "1", roles = {"ADMIN"})
+    @DisplayName("POST /admin/event/new validation failure returns 400")
+    void shouldReturnBadRequestWhenCreateValidationFails() throws Exception {
+        // Send an empty DTO which will fail CreateValidation constraints
+        EventDTO invalidDto = new EventDTO();
+
+        mockMvc.perform(post("/admin/event/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidDto)))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "1", roles = {"ADMIN"})
+    @DisplayName("PATCH /admin/event/update returns 404 when service throws not found")
+    void shouldReturnNotFoundWhenUpdateServiceThrows() throws Exception {
+        EventDTO eventDTO = createSampleEventDTO();
+
+        when(eventService.update(anyLong(), any(EventDTO.class)))
+            .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+
+        mockMvc.perform(patch("/admin/event/update/999")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(eventDTO)))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "1", roles = {"ADMIN"})
+    @DisplayName("DELETE /admin/event without id param returns 400")
+    void shouldReturnBadRequestWhenDeleteMissingParam() throws Exception {
+        mockMvc.perform(delete("/admin/event"))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "1", roles = {"ADMIN"})
+    @DisplayName("DELETE /admin/event returns 404 when service throws not found")
+    void shouldReturnNotFoundWhenDeleteServiceThrows() throws Exception {
+        when(eventService.delete(anyLong())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+
+        mockMvc.perform(delete("/admin/event").param("id", "999"))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("PATCH /admin/event/update forbidden for non-admin")
+    @WithMockUser(username = "3", roles = {"USER"})
+    void shouldNotAllowUpdateForNonAdmin() throws Exception {
+        EventDTO eventDTO = createSampleEventDTO();
+
+        mockMvc.perform(patch("/admin/event/update/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(eventDTO)))
+            .andExpect(status().isForbidden());
     }
 }
