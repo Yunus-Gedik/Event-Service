@@ -2,6 +2,7 @@ package org.yunusgedik.event.Helper;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -58,14 +59,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(ex.getStatusCode()).body(response);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleUnauthorized(AuthorizationDeniedException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("status", "error");
-        response.put("message", "An unexpected error occurred");
+        response.put("message", "Unauthorized access");
         response.put("timestamp", System.currentTimeMillis());
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 }
 
