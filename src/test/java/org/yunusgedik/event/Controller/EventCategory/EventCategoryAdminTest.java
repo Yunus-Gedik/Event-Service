@@ -54,7 +54,7 @@ public class EventCategoryAdminTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(input)))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.id").value(3))
+            .andExpect(jsonPath("$.id").value(saved.getId()))
             .andExpect(jsonPath("$.name").value("Business"));
     }
 
@@ -78,13 +78,13 @@ public class EventCategoryAdminTest {
     @WithMockUser(username = "1", roles = {"ADMIN"})
     @DisplayName("DELETE /event-category/admin/1 success")
     void shouldDeleteCategory() throws Exception {
-        EventCategory saved = new EventCategory(1L, "Tech", Set.of());
+        EventCategory deleted = new EventCategory(1L, "Tech", Set.of());
 
-        when(categoryService.delete(1L)).thenReturn(saved);
+        when(categoryService.delete(1L)).thenReturn(deleted);
 
         mockMvc.perform(delete("/admin/event-category/1"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(1L))
+            .andExpect(jsonPath("$.id").value(deleted.getId()))
             .andExpect(jsonPath("$.name").value("Tech"));
     }
 
@@ -101,5 +101,73 @@ public class EventCategoryAdminTest {
             .andExpect(jsonPath("$.status").value("error"))
             .andExpect(jsonPath("$.message").value("EventCategory not found"))
             .andExpect(jsonPath("$.timestamp").exists());
+    }
+
+    @Test
+    @DisplayName("POST /event-category/admin/new - unauthorized")
+    void shouldNotAllowUnauthenticatedAccess() throws Exception {
+        EventCategoryDTO input = new EventCategoryDTO("Business");
+
+        mockMvc.perform(post("/admin/event-category/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input)))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "1", roles = {"USER"})
+    @DisplayName("POST /event-category/admin/new - forbidden for non-admin")
+    void shouldNotAllowNonAdminAccess() throws Exception {
+        EventCategoryDTO input = new EventCategoryDTO("Business");
+
+        mockMvc.perform(post("/admin/event-category/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input)))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "1", roles = {"ADMIN"})
+    @DisplayName("POST /event-category/admin/new - validation failure")
+    void shouldValidateInput() throws Exception {
+        EventCategoryDTO input = new EventCategoryDTO("");  // Empty name should fail validation
+
+        mockMvc.perform(post("/admin/event-category/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value("error"))
+            .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "1", roles = {"ADMIN"})
+    @DisplayName("PATCH /event-category/admin/update - not found")
+    void shouldHandleUpdateNonExistentCategory() throws Exception {
+        EventCategoryDTO input = new EventCategoryDTO("UpdatedName");
+
+        when(categoryService.update(anyLong(), any(EventCategoryDTO.class)))
+            .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+
+        mockMvc.perform(patch("/admin/event-category/update/999")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input)))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value("error"))
+            .andExpect(jsonPath("$.message").value("Category not found"));
+    }
+
+    @Test
+    @WithMockUser(username = "1", roles = {"ADMIN"})
+    @DisplayName("PATCH /event-category/admin/update - invalid input")
+    void shouldValidateUpdateInput() throws Exception {
+        EventCategoryDTO input = new EventCategoryDTO(null);  // Null name should fail validation
+
+        mockMvc.perform(patch("/admin/event-category/update/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value("error"))
+            .andExpect(jsonPath("$.message").exists());
     }
 }
