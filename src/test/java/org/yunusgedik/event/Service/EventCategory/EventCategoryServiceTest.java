@@ -54,7 +54,7 @@ class EventCategoryServiceTest {
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(categoryId);
-        assertThat(result.getName()).isEqualTo("Music");
+        assertThat(result.getName()).isEqualTo(sampleCategory.getName());
         verify(repository).findById(categoryId);
     }
 
@@ -92,17 +92,15 @@ class EventCategoryServiceTest {
     @Test
     @DisplayName("Should create event category successfully")
     void shouldCreateEventCategorySuccessfully() {
-        // Given
-        EventCategory savedCategory = MockDataCreator.createSampleEventCategory(1L, "Music");
-        when(repository.save(any(EventCategory.class))).thenReturn(savedCategory);
+         // When
+        ArgumentCaptor<EventCategory> categoryCaptor = ArgumentCaptor.forClass(EventCategory.class);
+        when(repository.save(categoryCaptor.capture())).thenAnswer(val -> val.getArgument(0));
 
-        // When
         EventCategory result = eventCategoryService.create(sampleCategoryDTO);
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(1L);
-        assertThat(result.getName()).isEqualTo("Music");
+        assertThat(result.getName()).isEqualTo(sampleCategoryDTO.getName());
         verify(repository).save(any(EventCategory.class));
     }
 
@@ -158,7 +156,7 @@ class EventCategoryServiceTest {
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(categoryId);
-        assertThat(result.getName()).isEqualTo("Music");
+        assertThat(result.getName()).isEqualTo(sampleCategory.getName());
         verify(repository).findById(categoryId);
         verify(repository).delete(sampleCategory);
     }

@@ -71,9 +71,9 @@ class EventServiceTest {
     void shouldThrowExceptionWhenEventNotFoundById() {
         // Given
         Long eventId = 999L;
+
         when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
 
-        // When & Then
         assertThatThrownBy(() -> eventService.get(eventId))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("Event not found");
@@ -108,7 +108,7 @@ class EventServiceTest {
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getId()).isEqualTo(sampleEvent.getId());
         verify(eventRepository).save(any(Event.class));
     }
 
@@ -128,6 +128,7 @@ class EventServiceTest {
 
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
         when(eventRepository.save(eventCaptor.capture())).thenAnswer(val -> val.getArgument(0));
+
         Event savedEvent = eventService.update(eventId, updateDTO);
 
         // Then
@@ -261,10 +262,12 @@ class EventServiceTest {
         // Given
         Long eventId = 1L;
         EventDTO updateDTO = new EventDTO();
-        // All fields are null
+        // All fields are null in updateDTO
         
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(sampleEvent));
-        when(eventRepository.save(any(Event.class))).thenReturn(sampleEvent);
+        
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        when(eventRepository.save(eventCaptor.capture())).thenAnswer(val -> val.getArgument(0));
 
         // When
         Event result = eventService.update(eventId, updateDTO);
@@ -272,7 +275,19 @@ class EventServiceTest {
         // Then
         assertThat(result).isNotNull();
         verify(eventRepository).findById(eventId);
-        verify(eventRepository).save(sampleEvent);
+        verify(eventRepository).save(any(Event.class));
         verify(eventCategoryRepository, never()).findById(anyLong());
+
+        // Verify all fields remain unchanged from the original event
+        assertThat(result.getId()).isEqualTo(sampleEvent.getId());
+        assertThat(result.getTitle()).isEqualTo(sampleEvent.getTitle());
+        assertThat(result.getDescription()).isEqualTo(sampleEvent.getDescription());
+        assertThat(result.getLocation()).isEqualTo(sampleEvent.getLocation());
+        assertThat(result.getEventDate()).isEqualTo(sampleEvent.getEventDate());
+        assertThat(result.getCapacity()).isEqualTo(sampleEvent.getCapacity());
+        assertThat(result.getPrice()).isEqualTo(sampleEvent.getPrice());
+        assertThat(result.isActive()).isEqualTo(sampleEvent.isActive());
+        assertThat(result.getCategory()).isEqualTo(sampleEvent.getCategory());
+        assertThat(result.getCreatedAt()).isEqualTo(sampleEvent.getCreatedAt());
     }
 }
