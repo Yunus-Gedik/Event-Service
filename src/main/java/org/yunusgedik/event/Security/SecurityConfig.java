@@ -25,7 +25,6 @@ public class SecurityConfig {
         JwtAuthenticationFilter jwtAuthenticationFilter
     ) throws Exception {
         http
-            .anonymous(AbstractHttpConfigurer::disable)
             .httpBasic(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
@@ -36,7 +35,6 @@ public class SecurityConfig {
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
 
         return http.build();
     }
